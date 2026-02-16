@@ -1,4 +1,4 @@
-# gerenciamento-estacionamento
+# Gerenciamento Estacionamento
 
 Projeto Java de consola para gerir entradas e saídas de carros num estacionamento.
 
