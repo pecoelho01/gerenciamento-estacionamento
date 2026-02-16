@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerenciamento de Estacionamento</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --line: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --accent: #38bdf8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at 10% 10%, #1e293b 0%, var(--bg) 50%);
+      color: var(--text);
+    }
+
+    .wrap {
+      width: min(980px, 92vw);
+      margin: 32px auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: color-mix(in srgb, var(--panel) 92%, black);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 10px 0 4px;
+    }
+
+    input, select, button {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+    }
+
+    input, select {
+      background: #0b1220;
+      color: var(--text);
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      color: #03111c;
+      font-weight: 600;
+      margin-top: 12px;
+      background: linear-gradient(120deg, #22d3ee, var(--accent));
+    }
+
+    button.secondary {
+      background: #243142;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 12px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
+    .status.warn { color: var(--warn); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 6px;
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Gerenciamento de Estacionamento</h1>
+    <p class="subtitle">Frontend web conectado à API Spring Boot.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Registrar Entrada</h2>
+        <form id="entrada-form">
+          <label for="ownCar">Motorista</label>
+          <input id="ownCar" name="ownCar" required placeholder="Nome do motorista">
+
+          <label for="matricula">Matrícula</label>
+          <input id="matricula" name="matricula" required maxlength="6" placeholder="AA11BB">
+
+          <label for="category">Categoria</label>
+          <select id="category" name="category" required>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+
+          <button type="submit">Adicionar Carro</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Registrar Saída</h2>
+        <form id="saida-form">
+          <label for="saidaMatricula">Matrícula</label>
+          <input id="saidaMatricula" name="matricula" required maxlength="6" placeholder="AA11BB">
+          <button type="submit" class="secondary">Remover Carro</button>
+        </form>
+        <p class="status" id="status"></p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:16px;">
+      <h2>Carros Estacionados</h2>
+      <div class="toolbar">
+        <button id="refresh-btn" class="secondary" type="button">Atualizar Lista</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Motorista</th>
+            <th>Matrícula</th>
+            <th>Categoria</th>
+            <th>Entrada</th>
+          </tr>
+        </thead>
+        <tbody id="cars-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const carsBody = document.getElementById("cars-body");
+    const entradaForm = document.getElementById("entrada-form");
+    const saidaForm = document.getElementById("saida-form");
+    const refreshBtn = document.getElementById("refresh-btn");
+
+    function setStatus(message, type) {
+      statusEl.className = "status";
+      if (type) statusEl.classList.add(type);
+      statusEl.textContent = message || "";
+    }
+
+    function formatEntrada(carro) {
+      return carro.formatoDatEntrada || carro.dataEntrada || "-";
+    }
+
+    function renderCars(cars) {
+      if (!Array.isArray(cars) || cars.length === 0) {
+        carsBody.innerHTML = "<tr><td colspan='4'>Nenhum carro estacionado.</td></tr>";
+        return;
+      }
+
+      carsBody.innerHTML = cars
+        .map((carro) => `
+          <tr>
+            <td>${carro.ownCar ?? "-"}</td>
+            <td>${carro.matricula ?? "-"}</td>
+            <td>${carro.category ?? "-"}</td>
+            <td>${formatEntrada(carro)}</td>
+          </tr>
+        `)
+        .join("");
+    }
+
+    async function fetchCars() {
+      setStatus("Atualizando lista...", "warn");
+      try {
+        const response = await fetch("/api/carros");
+        const data = await response.json();
+        renderCars(data);
+        setStatus("Lista atualizada.", "ok");
+      } catch (error) {
+        setStatus("Erro ao carregar carros.", "err");
+      }
+    }
+
+    entradaForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(entradaForm);
+      const payload = {
+        ownCar: String(formData.get("ownCar") || "").trim(),
+        matricula: String(formData.get("matricula") || "").trim().toUpperCase(),
+        category: String(formData.get("category") || "A")
+      };
+
+      try {
+        const response = await fetch("/api/entrada", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setStatus(data.message || "Falha ao adicionar carro.", "err");
+          return;
+        }
+
+        entradaForm.reset();
+        setStatus(data.message || "Carro adicionado.", "ok");
+        await fetchCars();
+      } catch (error) {
+        setStatus("Erro de comunicação ao adicionar carro.", "err");
+      }
+    });
+
+    saidaForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const matricula = String(new FormData(saidaForm).get("matricula") || "").trim().toUpperCase();
+      if (!matricula) {
+        setStatus("Informe uma matrícula.", "warn");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/saida/${encodeURIComponent(matricula)}`, {
+          method: "POST"
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setStatus(data.message || "Falha ao remover carro.", "err");
+          return;
+        }
+
+        saidaForm.reset();
+        setStatus(data.message || "Carro removido.", "ok");
+        await fetchCars();
+      } catch (error) {
+        setStatus("Erro de comunicação ao remover carro.", "err");
+      }
+    });
+
+    refreshBtn.addEventListener("click", fetchCars);
+    fetchCars();
+  </script>
+</body>
+</html>
