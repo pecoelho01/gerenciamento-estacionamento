@@ -1,3 +1,6 @@
+package com.pecoelhoo.estacionamento_api.service;
+
+import com.pecoelhoo.estacionamento_api.model.Carro;
 import java.io.File;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
@@ -5,10 +8,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import org.springframework.stereotype.Service;
 
+@Service
 public class Estacionamento {
     private List<Carro> carPark = new ArrayList<>();
+    private List<Carro> archivePark = new ArrayList<>();
     private static final File BD_FILE = new File("baseDados.txt");
+    private static final File ARCH_FILE = new File("archiveCars.txt");
     private int capacity; 
     private LocalDateTime date;
 
@@ -20,6 +27,10 @@ public class Estacionamento {
 
     public File getBD() {
         return BD_FILE;
+    }
+
+    public File getArchive() {
+        return ARCH_FILE;
     }
 
     public List<Carro> getCarsParking() {
@@ -36,6 +47,7 @@ public class Estacionamento {
 
     public int pushCar(Carro e) {
         if ( carPark.contains(e)) {
+            archivePark.add(e);
             carPark.remove(e);
             return 0;
         }
@@ -55,7 +67,20 @@ public class Estacionamento {
             bd.close();
 
         } catch (Exception e) {
-            System.out.println("Erro a escrever na base de dados");
+            System.out.println("Erro a escrever na BD");
+        }
+    }
+
+    public void writeArchive() {
+        try {
+            PrintWriter archive = new PrintWriter(getArchive());
+
+            archive.println("========== Arquivo da Base de Dados ==========");
+            for ( Carro car: archivePark) {
+                archive.println(car.getOwnCar() + "-" + car.getMatricula() + "-" + car.getCategory() + "-" + car.getFormatoDatEntrada() + "-" + car.getFormatoDataSaida());
+            }
+        } catch (Exception e) {
+            System.out.println("Erro a escrever no Arquivo do sistema");
         }
     }
 
@@ -95,7 +120,7 @@ public class Estacionamento {
         st.append(" ============= Estes são os carros estacionaos =============" + "\n");
 
         for ( Carro c: carPark){
-            st.append(c);
+            st.append(c + "\n");
         }
 
         return st.toString();

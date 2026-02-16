@@ -1,3 +1,7 @@
+package com.pecoelhoo.estacionamento_api.cli;
+
+import com.pecoelhoo.estacionamento_api.model.Carro;
+import com.pecoelhoo.estacionamento_api.service.Estacionamento;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
