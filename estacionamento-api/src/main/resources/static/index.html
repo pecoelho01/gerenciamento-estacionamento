@@ -222,15 +222,35 @@
         .join("");
     }
 
+    async function readBody(response) {
+      const contentType = response.headers.get("content-type") || "";
+      const text = await response.text();
+      if (!text) return {};
+
+      if (contentType.includes("application/json")) {
+        try {
+          return JSON.parse(text);
+        } catch (error) {
+          return { message: text };
+        }
+      }
+
+      return { message: text };
+    }
+
     async function fetchCars() {
       setStatus("Atualizando lista...", "warn");
       try {
         const response = await fetch("/api/carros");
-        const data = await response.json();
+        const data = await readBody(response);
+        if (!response.ok) {
+          setStatus(`Falha ao carregar lista (HTTP ${response.status}).`, "err");
+          return;
+        }
         renderCars(data);
         setStatus("Lista atualizada.", "ok");
       } catch (error) {
-        setStatus("Erro ao carregar carros.", "err");
+        setStatus(`Erro ao carregar carros: ${error.message || "rede"}.`, "err");
       }
     }
 
@@ -249,9 +269,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        const data = await response.json();
+        const data = await readBody(response);
         if (!response.ok) {
-          setStatus(data.message || "Falha ao adicionar carro.", "err");
+          setStatus(data.message || `Falha ao adicionar carro (HTTP ${response.status}).`, "err");
           return;
         }
 
@@ -259,7 +279,7 @@
         setStatus(data.message || "Carro adicionado.", "ok");
         await fetchCars();
       } catch (error) {
-        setStatus("Erro de comunicação ao adicionar carro.", "err");
+        setStatus(`Erro de comunicação ao adicionar carro: ${error.message || "rede"}.`, "err");
       }
     });
 
@@ -275,9 +295,9 @@
         const response = await fetch(`/api/saida/${encodeURIComponent(matricula)}`, {
           method: "POST"
         });
-        const data = await response.json();
+        const data = await readBody(response);
         if (!response.ok) {
-          setStatus(data.message || "Falha ao remover carro.", "err");
+          setStatus(data.message || `Falha ao remover carro (HTTP ${response.status}).`, "err");
           return;
         }
 
@@ -285,7 +305,7 @@
         setStatus(data.message || "Carro removido.", "ok");
         await fetchCars();
       } catch (error) {
-        setStatus("Erro de comunicação ao remover carro.", "err");
+        setStatus(`Erro de comunicação ao remover carro: ${error.message || "rede"}.`, "err");
       }
     });
 
