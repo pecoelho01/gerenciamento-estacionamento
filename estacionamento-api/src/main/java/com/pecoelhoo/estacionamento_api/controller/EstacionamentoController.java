@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +18,6 @@ import com.pecoelhoo.estacionamento_api.service.Estacionamento;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "${app.cors.allowed-origin}")
 public class EstacionamentoController {
     private final Estacionamento estacionamento;
 

@@ -68,6 +68,10 @@ public class Carro {
         return 0;
     }
 
+    // public int checkCategory(char category) {
+    //     if ( category)
+    // }
+
     @Override
     public String toString() {
         StringBuilder st = new StringBuilder();
