@@ -20,10 +20,11 @@ public class Carro {
         }
         this.matricula = matricula;
 
-        if ( checkCategory(category) != 0) {
+        char normalizedCategory = normalizeCategory(category);
+        if ( checkCategory(normalizedCategory) != 0) {
             throw new Exception("Formato da categoria do carro inválida. Precisa de ser: L, P ou M");
         }
-        this.category = category;
+        this.category = normalizedCategory;
         this.localEntrada = localEntrada;
         this.localSaida = localSaida;
     }
@@ -73,10 +74,14 @@ public class Carro {
     }
 
     public int checkCategory(char category) {
-        if ( category != 'L' || category != 'P' || category != 'P') {
+        if ( category != 'L' && category != 'P' && category != 'M') {
             return 1;
         }
         return 0;
+    }
+
+    private char normalizeCategory(char category) {
+        return Character.toUpperCase(category);
     }
 
     @Override

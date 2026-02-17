@@ -34,8 +34,9 @@ public class MainEstacionamento {
                     System.out.print("Matrícula (6 caracteres): ");
                     String mat = sc.nextLine();
 
-                    System.out.print("Categoria (A/B/C): ");
-                    char cat = sc.nextLine().toUpperCase().charAt(0);
+                    System.out.print("Categoria (L/P/M): ");
+                    String categoriaInput = sc.nextLine().trim().toUpperCase();
+                    char cat = categoriaInput.isEmpty() ? ' ' : categoriaInput.charAt(0);
 
                     LocalDateTime entrada = LocalDateTime.now();
 

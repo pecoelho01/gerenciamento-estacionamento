@@ -260,7 +260,7 @@
       const payload = {
         ownCar: String(formData.get("ownCar") || "").trim(),
         matricula: String(formData.get("matricula") || "").trim().toUpperCase(),
-        category: String(formData.get("category") || "A")
+        category: String(formData.get("category") || "L").trim().toUpperCase()
       };
 
       try {
