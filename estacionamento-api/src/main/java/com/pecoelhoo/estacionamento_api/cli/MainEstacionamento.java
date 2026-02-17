@@ -7,7 +7,8 @@ import java.util.Scanner;
 
 public class MainEstacionamento {
     public static void main(String[] args) {
-        Estacionamento est = new Estacionamento();
+        String dataDir = System.getenv().getOrDefault("DATA_DIR", "./data");
+        Estacionamento est = new Estacionamento(dataDir);
         Scanner sc = new Scanner(System.in);
         int opcao = -1;
 
