@@ -43,6 +43,7 @@ public class EstacionamentoController {
 
             int result = estacionamento.putCar(carro);
             if (result == 0) {
+                estacionamento.writeDB();
                 return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "Carro entrou com sucesso."));
             }
@@ -58,6 +59,7 @@ public class EstacionamentoController {
         for (Carro carro : estacionamento.getCarsParking()) {
             if (carro.getMatricula().equalsIgnoreCase(matricula)) {
                 estacionamento.pushCar(carro);
+                estacionamento.writeDB();
                 return ResponseEntity.ok(Map.of("message", "Carro saiu com sucesso."));
             }
         }
