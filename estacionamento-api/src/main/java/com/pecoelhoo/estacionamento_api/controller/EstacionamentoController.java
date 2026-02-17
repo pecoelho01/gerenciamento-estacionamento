@@ -36,7 +36,7 @@ public class EstacionamentoController {
         try {
             if (!estacionamento.getBD().exists()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Ficheiro baseDados.txt não encontrado.");
+                    .body("Ficheiro baseDados.txt não encontrado em: " + estacionamento.getBD().getAbsolutePath());
             }
             return ResponseEntity.ok(Files.readString(estacionamento.getBD().toPath()));
         } catch (Exception e) {

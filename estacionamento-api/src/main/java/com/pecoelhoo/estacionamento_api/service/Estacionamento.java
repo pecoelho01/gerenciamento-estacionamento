@@ -16,14 +16,29 @@ import com.pecoelhoo.estacionamento_api.model.Carro;
 public class Estacionamento {
     private List<Carro> carPark = new ArrayList<>();
     private List<Carro> archivePark = new ArrayList<>();
-    private static final File BD_FILE = new File("/app/data/baseDados.txt");
-    private static final File ARCH_FILE = new File("archiveCars.txt");
+    private static final File DATA_DIR = new File("/app/data");
+    private static final File BD_FILE = new File(DATA_DIR, "baseDados.txt");
+    private static final File ARCH_FILE = new File(DATA_DIR, "archiveCars.txt");
     private int capacity; 
     private LocalDateTime date;
 
     public Estacionamento() {
-        if ( BD_FILE.exists() ){
+        ensureStorageReady();
+        if ( BD_FILE.length() > 0 ){
             loadBD();
+        }
+    }
+
+    private void ensureStorageReady() {
+        try {
+            if (!DATA_DIR.exists() && !DATA_DIR.mkdirs()) {
+                throw new IllegalStateException("Não foi possível criar diretório de dados: " + DATA_DIR.getAbsolutePath());
+            }
+            if (!BD_FILE.exists()) {
+                writeDB();
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Falha ao preparar armazenamento: " + e.getMessage(), e);
         }
     }
 
