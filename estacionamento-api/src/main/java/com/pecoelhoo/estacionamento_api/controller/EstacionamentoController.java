@@ -1,5 +1,6 @@
 package com.pecoelhoo.estacionamento_api.controller;
 
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,20 @@ public class EstacionamentoController {
     @GetMapping("/carros")
     public List<Carro> listarCarros() {
         return estacionamento.getCarsParking();
+    }
+
+    @GetMapping(value = "/debug/base-dados", produces = "text/plain;charset=UTF-8")
+    public ResponseEntity<String> verBaseDados() {
+        try {
+            if (!estacionamento.getBD().exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ficheiro baseDados.txt não encontrado.");
+            }
+            return ResponseEntity.ok(Files.readString(estacionamento.getBD().toPath()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao ler baseDados.txt: " + e.getMessage());
+        }
     }
 
     @PostMapping("/entrada")
