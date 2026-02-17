@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.pecoelhoo.estacionamento_api.model.Carro;
@@ -16,25 +17,28 @@ import com.pecoelhoo.estacionamento_api.model.Carro;
 public class Estacionamento {
     private List<Carro> carPark = new ArrayList<>();
     private List<Carro> archivePark = new ArrayList<>();
-    private static final File DATA_DIR = new File("/app/data");
-    private static final File BD_FILE = new File(DATA_DIR, "baseDados.txt");
-    private static final File ARCH_FILE = new File(DATA_DIR, "archiveCars.txt");
+    private final File dataDir;
+    private final File bdFile;
+    private final File archFile;
     private int capacity; 
     private LocalDateTime date;
 
-    public Estacionamento() {
+    public Estacionamento(@Value("${app.data.dir}") String path) {
+        this.dataDir = new File(path);
+        this.bdFile = new File(dataDir, "baseDados.txt");
+        this.archFile = new File(dataDir, "archiveCars.txt");
         ensureStorageReady();
-        if ( BD_FILE.length() > 0 ){
+        if ( bdFile.length() > 0 ){
             loadBD();
         }
     }
 
     private void ensureStorageReady() {
         try {
-            if (!DATA_DIR.exists() && !DATA_DIR.mkdirs()) {
-                throw new IllegalStateException("Não foi possível criar diretório de dados: " + DATA_DIR.getAbsolutePath());
+            if (!dataDir.exists() && !dataDir.mkdirs()) {
+                throw new IllegalStateException("Não foi possível criar diretório de dados: " + dataDir.getAbsolutePath());
             }
-            if (!BD_FILE.exists()) {
+            if (!bdFile.exists()) {
                 writeDB();
             }
         } catch (Exception e) {
@@ -43,11 +47,11 @@ public class Estacionamento {
     }
 
     public File getBD() {
-        return BD_FILE;
+        return bdFile;
     }
 
     public File getArchive() {
-        return ARCH_FILE;
+        return archFile;
     }
 
     public List<Carro> getCarsParking() {
@@ -74,32 +78,27 @@ public class Estacionamento {
     }
 
     public void writeDB() {
-        try {
-            PrintWriter bd = new PrintWriter(getBD());
+        try (PrintWriter bd = new PrintWriter(getBD())) {
 
             bd.println(" ========== Base de Dados ============");
 
             for ( Carro car: carPark) {
                 bd.println(car.getOwnCar() + "-" + car.getMatricula() + "-" + car.getCategory() + "-" + car.getFormatoDatEntrada() + "-" + car.getFormatoDataSaida());
             }
-            
-            bd.close();
-
         } catch (Exception e) {
-            System.out.println("Erro a escrever na BD");
+            throw new IllegalStateException("Erro a escrever na BD: " + e.getMessage(), e);
         }
     }
 
     public void writeArchive() {
-        try {
-            PrintWriter archive = new PrintWriter(getArchive());
+        try (PrintWriter archive = new PrintWriter(getArchive())) {
 
             archive.println("========== Arquivo da Base de Dados ==========");
             for ( Carro car: archivePark) {
                 archive.println(car.getOwnCar() + "-" + car.getMatricula() + "-" + car.getCategory() + "-" + car.getFormatoDatEntrada() + "-" + car.getFormatoDataSaida());
             }
         } catch (Exception e) {
-            System.out.println("Erro a escrever no Arquivo do sistema");
+            throw new IllegalStateException("Erro a escrever no Arquivo do sistema: " + e.getMessage(), e);
         }
     }
 

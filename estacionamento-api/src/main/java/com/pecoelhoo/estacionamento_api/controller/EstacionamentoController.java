@@ -64,19 +64,27 @@ public class EstacionamentoController {
             }
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("message", "Carro já está no estacionamento."));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Erro interno ao persistir dados."));
         }
     }
 
     @PostMapping("/saida/{matricula}")
     public ResponseEntity<Map<String, String>> saida(@PathVariable String matricula) {
-        for (Carro carro : estacionamento.getCarsParking()) {
-            if (carro.getMatricula().equalsIgnoreCase(matricula)) {
-                estacionamento.pushCar(carro);
-                estacionamento.writeDB();
-                return ResponseEntity.ok(Map.of("message", "Carro saiu com sucesso."));
+        try {
+            for (Carro carro : estacionamento.getCarsParking()) {
+                if (carro.getMatricula().equalsIgnoreCase(matricula)) {
+                    estacionamento.pushCar(carro);
+                    estacionamento.writeDB();
+                    return ResponseEntity.ok(Map.of("message", "Carro saiu com sucesso."));
+                }
             }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Erro interno ao persistir dados."));
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
