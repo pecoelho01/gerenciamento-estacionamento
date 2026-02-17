@@ -19,6 +19,10 @@ public class Carro {
             throw new Exception("Formato de matrícula inválido. Precisa de ter 6 caracteres. Este deve ser o formato: XXAAYY");
         }
         this.matricula = matricula;
+
+        if ( checkCategory(category) != 0) {
+            throw new Exception("Formato da categoria do carro inválida. Precisa de ser: L, P ou M");
+        }
         this.category = category;
         this.localEntrada = localEntrada;
         this.localSaida = localSaida;
@@ -68,9 +72,12 @@ public class Carro {
         return 0;
     }
 
-    // public int checkCategory(char category) {
-    //     if ( category)
-    // }
+    public int checkCategory(char category) {
+        if ( category != 'L' || category != 'P' || category != 'P') {
+            return 1;
+        }
+        return 0;
+    }
 
     @Override
     public String toString() {
