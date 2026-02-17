@@ -41,12 +41,12 @@ public class Estacionamento {
 
     public int putCar(Carro e) {
         for ( Carro c: carPark) {
-            if ( ! c.getMatricula().equals(e.getMatricula())) {
-                    carPark.add(e);
-                    return 0;
+            if ( c.getMatricula().equals(e.getMatricula())) {
+                   return 1;
             }
         }
-        return 1;
+        carPark.add(e);
+        return 0;
     }
 
     public int pushCar(Carro e) {
