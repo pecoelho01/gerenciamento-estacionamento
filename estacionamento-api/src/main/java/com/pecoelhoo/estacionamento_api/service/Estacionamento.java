@@ -16,7 +16,7 @@ import com.pecoelhoo.estacionamento_api.model.Carro;
 public class Estacionamento {
     private List<Carro> carPark = new ArrayList<>();
     private List<Carro> archivePark = new ArrayList<>();
-    private static final File BD_FILE = new File("baseDados.txt");
+    private static final File BD_FILE = new File("/app/data/baseDados.txt");
     private static final File ARCH_FILE = new File("archiveCars.txt");
     private int capacity; 
     private LocalDateTime date;
