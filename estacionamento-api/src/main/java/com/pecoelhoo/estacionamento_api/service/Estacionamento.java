@@ -1,6 +1,5 @@
 package com.pecoelhoo.estacionamento_api.service;
 
-import com.pecoelhoo.estacionamento_api.model.Carro;
 import java.io.File;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
@@ -8,7 +7,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 import org.springframework.stereotype.Service;
+
+import com.pecoelhoo.estacionamento_api.model.Carro;
 
 @Service
 public class Estacionamento {
@@ -38,9 +40,11 @@ public class Estacionamento {
     }
 
     public int putCar(Carro e) {
-        if ( ! carPark.contains(e)) {
-            carPark.add(e);
-            return 0;
+        for ( Carro c: carPark) {
+            if ( ! c.getMatricula().equals(e.getMatricula())) {
+                    carPark.add(e);
+                    return 0;
+            }
         }
         return 1;
     }
