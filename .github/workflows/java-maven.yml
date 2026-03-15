@@ -1,0 +1,33 @@
+name: Java CI (Maven)
+
+on:
+  push:
+    paths:
+      - "estacionamento-api/**"
+      - ".github/workflows/java-maven.yml"
+  pull_request:
+    paths:
+      - "estacionamento-api/**"
+      - ".github/workflows/java-maven.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: estacionamento-api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build and test with Maven
+        run: ./mvnw -B verify

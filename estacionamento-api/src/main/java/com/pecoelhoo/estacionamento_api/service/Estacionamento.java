@@ -20,7 +20,8 @@ public class Estacionamento {
     private final File dataDir;
     private final File bdFile;
     private final File archFile;
-    private int capacity; 
+    private final int CAPACITY = 50; 
+    private int count;
     private LocalDateTime date;
 
     public Estacionamento(@Value("${app.data.dir}") String path) {
@@ -59,19 +60,29 @@ public class Estacionamento {
     }
 
     public int putCar(Carro e) {
+        if ( count == CAPACITY) {
+            return 1;
+        }
+
         for ( Carro c: carPark) {
             if ( c.getMatricula().equals(e.getMatricula())) {
                    return 1;
             }
         }
         carPark.add(e);
+        count++;
+
+
         return 0;
     }
 
     public int pushCar(Carro e) {
         if ( carPark.contains(e)) {
             archivePark.add(e);
+            e.setFormatoDataSaida(date.now());
+            writeArchive();
             carPark.remove(e);
+            count--;
             return 0;
         }
         return 1;
@@ -82,6 +93,7 @@ public class Estacionamento {
 
             bd.println(" ========== Base de Dados ============");
 
+            bd.println("Lotação: " + count + "/" + CAPACITY);
             for ( Carro car: carPark) {
                 bd.println(car.getOwnCar() + "-" + car.getMatricula() + "-" + car.getCategory() + "-" + car.getFormatoDatEntrada() + "-" + car.getFormatoDataSaida());
             }
@@ -106,6 +118,13 @@ public class Estacionamento {
         try {
             Scanner sc = new Scanner(getBD());
             sc.nextLine();
+            String countNotFinal = sc.nextLine();
+            String [] countElements = countNotFinal.split(" ");
+            String [] countFinal1 = countElements[1].split("/");
+            int countFinal = Integer.parseInt(countFinal1[0]);
+
+            count = countFinal;
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH'h'mm");
 
             while( sc.hasNextLine() ) {

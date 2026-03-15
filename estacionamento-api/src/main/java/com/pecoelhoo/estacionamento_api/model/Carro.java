@@ -65,6 +65,10 @@ public class Carro {
           return localSaida.format(FORMAT);
     }
 
+    public void setFormatoDataSaida(LocalDateTime dataSaida) {
+        localSaida = dataSaida;
+    }
+
 
     public int checkMatricula(String mat) {
         if ( mat.length() != 6 ) {
