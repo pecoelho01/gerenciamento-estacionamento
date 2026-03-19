@@ -7,7 +7,7 @@ API em Spring Boot para registo de entrada/saída de carros, com frontend web es
 - Backend: Spring Boot (`estacionamento-api`).
 - Frontend: `index.html` servido pela própria aplicação (em `src/main/resources/static`).
 - Persistência: ficheiros texto (sem base de dados relacional).
-- Deploy alvo: Railway.
+- Deploy alvo: Render.
 
 ## Funcionalidades
 
@@ -21,14 +21,14 @@ API em Spring Boot para registo de entrada/saída de carros, com frontend web es
 
 A aplicação usa estes ficheiros:
 
-- `/app/data/baseDados.txt`
-- `/app/data/archiveCars.txt`
+- `./data/baseDados.txt` (default local)
+- `./data/archiveCars.txt` (default local)
 
 Detalhes importantes:
 
-- No arranque, a aplicação cria `/app/data` e `baseDados.txt` se ainda não existirem.
-- Em produção (Railway), é necessário montar um Volume persistente em `/app/data`.
-- Sem Volume, os dados podem ser perdidos em redeploy/restart.
+- No arranque, a aplicação cria o diretório configurado em `DATA_DIR` e `baseDados.txt` se ainda não existirem.
+- Em produção (Render), use `DATA_DIR=/var/data` e monte um disco persistente no mesmo path.
+- Sem disco persistente, os dados podem ser perdidos em restart/redeploy.
 
 Formato das linhas em `baseDados.txt`:
 
@@ -69,16 +69,28 @@ Depois abrir:
 - App web: `http://localhost:8080`
 - API carros: `http://localhost:8080/api/carros`
 
+## Deploy no Render (evitar perda de dados)
+
+1. No serviço web, criar um **Persistent Disk** com mount path `/var/data`.
+2. Garantir variável de ambiente `DATA_DIR=/var/data`.
+3. Fazer deploy e validar em `/api/debug/base-dados` que o ficheiro está a ser lido/escrito.
+4. Se o disco estiver montado noutro path, usar esse mesmo valor em `DATA_DIR`.
+
 ## Configuração
 
 `estacionamento-api/src/main/resources/application.properties`:
 
 - `server.port=${PORT:8080}`
 - `app.cors.allowed-origin-patterns=...`
+- `app.data.dir=${DATA_DIR:./data}`
 
 Também é possível configurar CORS por variável de ambiente:
 
 - `CORS_ALLOWED_ORIGIN_PATTERNS`
+
+Também é possível configurar persistência por variável de ambiente:
+
+- `DATA_DIR`
 
 ## Estrutura principal
 

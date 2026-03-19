@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import com.pecoelhoo.estacionamento_api.model.Carro;
 
 @Service
 public class Estacionamento {
+    private static final Logger log = LoggerFactory.getLogger(Estacionamento.class);
     private List<Carro> carPark = new ArrayList<>();
     private List<Carro> archivePark = new ArrayList<>();
     private final File dataDir;
@@ -29,8 +32,19 @@ public class Estacionamento {
         this.bdFile = new File(dataDir, "baseDados.txt");
         this.archFile = new File(dataDir, "archiveCars.txt");
         ensureStorageReady();
+        logStorageConfiguration();
         if ( bdFile.length() > 0 ){
             loadBD();
+        }
+    }
+
+    private void logStorageConfiguration() {
+        log.info("Diretório de dados configurado em: {}", dataDir.getAbsolutePath());
+        log.info("Ficheiro base de dados: {}", bdFile.getAbsolutePath());
+        log.info("Ficheiro de arquivo: {}", archFile.getAbsolutePath());
+
+        if (System.getenv("RENDER") != null && !dataDir.getAbsolutePath().startsWith("/var/data")) {
+            log.warn("Render detetado sem DATA_DIR em /var/data. Sem disco persistente os dados podem ser perdidos em restart.");
         }
     }
 
@@ -59,6 +73,10 @@ public class Estacionamento {
         return carPark;
     }
 
+    public int getParkCars() {
+        return count;
+    }
+
     public int putCar(Carro e) {
         if ( count == CAPACITY) {
             return 1;
@@ -76,10 +94,10 @@ public class Estacionamento {
         return 0;
     }
 
-    public int pushCar(Carro e) {
+    public int pushCar(Carro e, LocalDateTime date) {
         if ( carPark.contains(e)) {
             archivePark.add(e);
-            e.setFormatoDataSaida(date.now());
+            e.setFormatoDataSaida(date);
             writeArchive();
             carPark.remove(e);
             count--;
@@ -155,7 +173,7 @@ public class Estacionamento {
         StringBuilder st = new StringBuilder();
 
         st.append(" ============= Estes são os carros estacionaos =============" + "\n");
-
+        st.append("Lotação: " + getParkCars() + "/50");
         for ( Carro c: carPark){
             st.append(c + "\n");
         }

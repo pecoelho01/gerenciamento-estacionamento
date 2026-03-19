@@ -77,7 +77,8 @@ public class EstacionamentoController {
         try {
             for (Carro carro : estacionamento.getCarsParking()) {
                 if (carro.getMatricula().equalsIgnoreCase(matricula)) {
-                    estacionamento.pushCar(carro);
+
+                    estacionamento.pushCar(carro, LocalDateTime.now());
                     estacionamento.writeDB();
                     return ResponseEntity.ok(Map.of("message", "Carro saiu com sucesso."));
                 }

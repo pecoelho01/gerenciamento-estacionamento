@@ -1,9 +1,10 @@
 package com.pecoelhoo.estacionamento_api.cli;
 
-import com.pecoelhoo.estacionamento_api.model.Carro;
-import com.pecoelhoo.estacionamento_api.service.Estacionamento;
 import java.time.LocalDateTime;
 import java.util.Scanner;
+
+import com.pecoelhoo.estacionamento_api.model.Carro;
+import com.pecoelhoo.estacionamento_api.service.Estacionamento;
 
 public class MainEstacionamento {
     public static void main(String[] args) {
@@ -64,8 +65,9 @@ public class MainEstacionamento {
                         }
                     }
 
+                    LocalDateTime saidaData = LocalDateTime.now();
                     if (remover != null) {
-                        est.pushCar(remover);
+                        est.pushCar(remover, saidaData);
                         System.out.println("🚗 Carro removido com sucesso!");
                     } else {
                         System.out.println("❌ Carro não encontrado!");

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_DIR="/Users/pecoelhoo/Documents/GitHub/gerenciamento-estacionamento"
+APP_DIR="$REPO_DIR/estacionamento-api"
+
+cd "$APP_DIR"
+DATA_DIR=./data ./mvnw -DskipTests compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=com.pecoelhoo.estacionamento_api.cli.MainEstacionamento

@@ -1,6 +1,5 @@
  ========== Base de Dados ============
-Lotação: 4/50
+Lotação: 3/50
 Joao-AE34Sd-M-04/03/2026:19h17-null
-Diogo-CV34DF-L-04/03/2026:19h18-null
 Tiago-PT45FG-L-04/03/2026:19h25-null
 Luis-PT34DF-L-04/03/2026:19h25-null
